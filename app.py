@@ -81,17 +81,17 @@ df_navios["PrevisaoAtracacao"] = pd.to_datetime(df_navios["PrevisaoAtracacao"], 
 df_navios = df_navios.sort_values("PrevisaoAtracacao").drop_duplicates(subset=["Navio"], keep="last")
 
 # ==========================
-# UPLOAD DA PLANILHA DE PEDIDOS
+# CRIAR DATAFRAME DE PEDIDOS SIMULADO
 # ==========================
-uploaded_file = st.file_uploader("Faça upload da planilha de pedidos", type=["xlsx", "csv"])
-if uploaded_file:
-    df_pedidos = pd.read_excel(uploaded_file) if uploaded_file.name.endswith("xlsx") else pd.read_csv(uploaded_file)
+# Substitua essas linhas pelos nomes das colunas que sua planilha teria
+colunas_pedidos = ["PedidoID", "Navio", "Produto", "Quantidade"]
+df_pedidos = pd.DataFrame(columns=colunas_pedidos)
 
-    # ==========================
-    # MERGE DOS PEDIDOS COM NAVIOS
-    # ==========================
-    # Supondo que sua planilha tenha uma coluna "Navio"
-    df_result = df_pedidos.merge(df_navios, on="Navio", how="left")
+# ==========================
+# MERGE DOS PEDIDOS COM NAVIOS
+# ==========================
+# Agora funciona sem upload
+df_result = df_pedidos.merge(df_navios, on="Navio", how="left")
 
-    st.write(f"Mostrando {len(df_result)} pedidos com previsão de chegada")
-    st.dataframe(df_result)
+st.write(f"Mostrando {len(df_result)} pedidos com previsão de chegada")
+st.dataframe(df_result)
