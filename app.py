@@ -83,14 +83,18 @@ df_navios = df_navios.sort_values("PrevisaoAtracacao").drop_duplicates(subset=["
 # ==========================
 # CRIAR DATAFRAME DE PEDIDOS SIMULADO
 # ==========================
-# Substitua essas linhas pelos nomes das colunas que sua planilha teria
-colunas_pedidos = ["PedidoID", "Navio", "Produto", "Quantidade"]
-df_pedidos = pd.DataFrame(columns=colunas_pedidos)
+# Usamos alguns navios da API para simular pedidos
+num_simulados = min(5, len(df_navios))  # pega até 5 navios
+df_pedidos = pd.DataFrame({
+    "PedidoID": range(1, num_simulados + 1),
+    "Navio": df_navios["Navio"].iloc[:num_simulados].tolist(),
+    "Produto": [f"Produto {i}" for i in range(1, num_simulados + 1)],
+    "Quantidade": [10, 20, 15, 5, 12][:num_simulados]
+})
 
 # ==========================
 # MERGE DOS PEDIDOS COM NAVIOS
 # ==========================
-# Agora funciona sem upload
 df_result = df_pedidos.merge(df_navios, on="Navio", how="left")
 
 st.write(f"Mostrando {len(df_result)} pedidos com previsão de chegada")
