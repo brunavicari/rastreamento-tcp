@@ -66,8 +66,6 @@ if not dados:
     st.stop()
 
 df_navios = pd.json_normalize(dados)
-
-# Seleciona as colunas importantes, incluindo ViagemTcp
 colunas_desejadas = ["Navio", "ViagemTcp", "ArmadorNome", "PrevisaoAtracacao"]
 df_navios = df_navios[colunas_desejadas].copy()
 df_navios["PrevisaoAtracacao"] = pd.to_datetime(df_navios["PrevisaoAtracacao"], errors="coerce")
@@ -76,42 +74,15 @@ df_navios["PrevisaoAtracacao"] = pd.to_datetime(df_navios["PrevisaoAtracacao"], 
 df_navios = df_navios.sort_values("PrevisaoAtracacao").drop_duplicates(subset=["Navio", "ViagemTcp"], keep="last")
 
 # ==========================
-# ENTRADA DE PEDIDOS
+# EXEMPLO INTERNO DE PEDIDOS
 # ==========================
-st.sidebar.header("📥 Entrada de Pedidos")
-opcao = st.sidebar.radio("Como deseja carregar pedidos?", ["Exemplo interno", "Colar na caixa de texto", "Upload Excel/CSV"])
-
-if opcao == "Exemplo interno":
-    df_pedidos = pd.DataFrame({
-        "Pedido": ["CROP193/25_PR", "CROP140/25A_PR", "CROP098/25_RS"],
-        "Produto": ["KRATON 100 EC", "KRATON 100 EC", "CHARRUA 430 SC"],
-        "Quantidade": [115.500, 46.200, 86.400],
-        "Navio": ["SEASPAN ZAMBEZI", "SEASPAN ZAMBEZI", "CMA CGM MERCANTOUR"],
-        "ViagemTcp": ["2528W", "2528W", "1GB0AN1MA"]  # ⚡ valor exato do JSON
-    })
-
-elif opcao == "Colar na caixa de texto":
-    texto = st.sidebar.text_area(
-        "Cole seus pedidos (PedidoID, Produto, Quantidade, Navio, ViagemTcp)", 
-        "201, Algodão, 300, MSC BRUNA, 123E\n202, Café, 150, CMA CGM SANTOS, 045W"
-    )
-    linhas = [linha.split(",") for linha in texto.splitlines() if linha.strip()]
-    df_pedidos = pd.DataFrame(linhas, columns=["PedidoID", "Produto", "Quantidade", "Navio", "ViagemTcp"])
-    df_pedidos["PedidoID"] = df_pedidos["PedidoID"].str.strip()
-    df_pedidos["Produto"] = df_pedidos["Produto"].str.strip()
-    df_pedidos["Navio"] = df_pedidos["Navio"].str.strip()
-    df_pedidos["ViagemTcp"] = df_pedidos["ViagemTcp"].str.strip()
-    df_pedidos["Quantidade"] = pd.to_numeric(df_pedidos["Quantidade"], errors="coerce")
-
-elif opcao == "Upload Excel/CSV":
-    arquivo = st.sidebar.file_uploader("Carregar arquivo", type=["csv", "xlsx"])
-    if arquivo:
-        if arquivo.name.endswith(".csv"):
-            df_pedidos = pd.read_csv(arquivo)
-        else:
-            df_pedidos = pd.read_excel(arquivo)
-    else:
-        st.stop("Faça upload de um arquivo para continuar.")
+df_pedidos = pd.DataFrame({
+    "Pedido": ["CROP193/25_PR", "CROP140/25A_PR", "CROP098/25_RS"],
+    "Produto": ["KRATON 100 EC", "KRATON 100 EC", "CHARRUA 430 SC"],
+    "Quantidade": [115.500, 46.200, 86.400],
+    "Navio": ["SEASPAN ZAMBEZI", "SEASPAN ZAMBEZI", "CMA CGM MERCANTOUR"],
+    "ViagemTcp": ["2528W", "2528W", "1GB0AN1MA"]
+})
 
 # ==========================
 # PADRONIZAÇÃO DE STRINGS
@@ -126,16 +97,24 @@ for df in [df_navios, df_pedidos]:
 df_result = df_pedidos.merge(df_navios, on=["Navio", "ViagemTcp"], how="left")
 
 # ==========================
-# RESULTADOS
+# FORMATAÇÃO DE DADOS
 # ==========================
-st.subheader(f"📦 Pedidos ({len(df_result)}) com previsão de chegada")
-st.dataframe(df_result, use_container_width=True)
+# Formatar data para PT-BR
+df_result["PrevisaoAtracacao"] = df_result["PrevisaoAtracacao"].dt.strftime("%d/%m/%Y %H:%M")
 
-st.subheader("📊 Programação de Navios (API TCP)")
-st.dataframe(df_navios, use_container_width=True)
+# Formatar quantidade com 3 casas decimais
+df_result["Quantidade"] = df_result["Quantidade"].map(lambda x: f"{x:,.3f}".replace(",", "X").replace(".", ",").replace("X", "."))
 
-# Debug opcional
-st.write("🔍 Navios+ViagemTcp no TCP:")
-st.dataframe(df_navios[["Navio","ViagemTcp","PrevisaoAtracacao"]].drop_duplicates())
-st.write("🔍 Pedidos inseridos:")
-st.dataframe(df_pedidos[["Navio","ViagemTcp"]].drop_duplicates())
+# ==========================
+# ESTILIZAR A TABELA
+# ==========================
+def style_df(df):
+    return df.style.set_properties(**{
+        'text-align': 'center'
+    })
+
+# ==========================
+# RESULTADO FINAL
+# ==========================
+st.subheader(f"🚢 Rastreamento de Embarques TCP ({len(df_result)})")
+st.dataframe(style_df(df_result), use_container_width=True)
