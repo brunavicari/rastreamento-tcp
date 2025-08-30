@@ -101,20 +101,27 @@ df_result = df_pedidos.merge(df_navios, on=["Navio", "ViagemTcp"], how="left")
 # ==========================
 # Formatar data para PT-BR
 df_result["PrevisaoAtracacao"] = df_result["PrevisaoAtracacao"].dt.strftime("%d/%m/%Y %H:%M")
+df_navios["PrevisaoAtracacao"] = df_navios["PrevisaoAtracacao"].dt.strftime("%d/%m/%Y %H:%M")
 
 # Formatar quantidade com 3 casas decimais
-df_result["Quantidade"] = df_result["Quantidade"].map(lambda x: f"{x:,.3f}".replace(",", "X").replace(".", ",").replace("X", "."))
+df_result["Quantidade"] = df_result["Quantidade"].map(
+    lambda x: f"{x:,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
+)
 
 # ==========================
-# ESTILIZAR A TABELA
+# ESTILIZAR TABELAS CENTRALIZADAS
 # ==========================
-def style_df(df):
+def style_centralizado(df):
     return df.style.set_properties(**{
-        'text-align': 'center'
+        'text-align': 'center',
+        'vertical-align': 'middle'
     })
 
 # ==========================
 # RESULTADO FINAL
 # ==========================
 st.subheader(f"🚢 Rastreamento de Embarques TCP ({len(df_result)})")
-st.dataframe(style_df(df_result), use_container_width=True)
+st.dataframe(style_centralizado(df_result), use_container_width=True)
+
+st.subheader("📊 Programação de Navios (API TCP)")
+st.dataframe(style_centralizado(df_navios), use_container_width=True)
