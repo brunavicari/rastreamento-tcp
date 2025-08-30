@@ -85,7 +85,7 @@ opcao = st.sidebar.radio("Como deseja carregar pedidos?", ["Exemplo interno", "C
 if opcao == "Exemplo interno":
     # Exemplo fixo
     df_pedidos = pd.DataFrame({
-        "Pedido": [CROP193/25_PR, CROP140/25A_PR, CROP098/25_RS],
+        "Pedido": ["CROP193/25_PR", "CROP140/25A_PR", "CROP098/25_RS"],
         "Produto": ["KRATON 100 EC", "KRATON 100 EC", "CHARRUA 430 SC"],
         "Quantidade": [115.500, 46.200, 86.400],
         "Navio": ["SEASPAN ZAMBEZI", "SEASPAN ZAMBEZI", "EVER GREEN"]
