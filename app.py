@@ -68,12 +68,12 @@ if not dados:
 
 df_navios = pd.json_normalize(dados)
 
-colunas_desejadas = ["Navio", "Viagem", "ArmadorNome", "PrevisaoAtracacao"]
+colunas_desejadas = ["Navio", "ViagemTcp", "ArmadorNome", "PrevisaoAtracacao"]
 df_navios = df_navios[colunas_desejadas].copy()
 df_navios["PrevisaoAtracacao"] = pd.to_datetime(df_navios["PrevisaoAtracacao"], errors="coerce")
 
 # Manter só a última previsão de cada navio + viagem
-df_navios = df_navios.sort_values("PrevisaoAtracacao").drop_duplicates(subset=["Navio", "Viagem"], keep="last")
+df_navios = df_navios.sort_values("PrevisaoAtracacao").drop_duplicates(subset=["Navio", "ViagemTcp"], keep="last")
 
 # ==========================
 # ENTRADA DE PEDIDOS
@@ -83,20 +83,19 @@ st.sidebar.header("📥 Entrada de Pedidos")
 opcao = st.sidebar.radio("Como deseja carregar pedidos?", ["Exemplo interno", "Colar na caixa de texto", "Upload Excel/CSV"])
 
 if opcao == "Exemplo interno":
-    # Exemplo fixo (com Viagem agora)
     df_pedidos = pd.DataFrame({
         "Pedido": ["CROP193/25_PR", "CROP140/25A_PR", "CROP098/25_RS"],
         "Produto": ["KRATON 100 EC", "KRATON 100 EC", "CHARRUA 430 SC"],
         "Quantidade": [115.500, 46.200, 86.400],
         "Navio": ["SEASPAN ZAMBEZI", "SEASPAN ZAMBEZI", "EVER GREEN"],
-        "Viagem": ["249E", "249E", "102W"]  # <- exemplo
+        "ViagemTcp": ["249E", "249E", "102W"]  # <- agora bate com a coluna do TCP
     })
 
 elif opcao == "Colar na caixa de texto":
-    texto = st.sidebar.text_area("Cole seus pedidos (PedidoID, Produto, Quantidade, Navio, Viagem)", 
+    texto = st.sidebar.text_area("Cole seus pedidos (PedidoID, Produto, Quantidade, Navio, ViagemTcp)", 
                                  "201, Algodão, 300, MSC BRUNA, 123E\n202, Café, 150, CMA CGM SANTOS, 045W")
     linhas = [linha.split(",") for linha in texto.splitlines() if linha.strip()]
-    df_pedidos = pd.DataFrame(linhas, columns=["PedidoID", "Produto", "Quantidade", "Navio", "Viagem"])
+    df_pedidos = pd.DataFrame(linhas, columns=["PedidoID", "Produto", "Quantidade", "Navio", "ViagemTcp"])
     df_pedidos["PedidoID"] = df_pedidos["PedidoID"].str.strip()
     df_pedidos["Quantidade"] = pd.to_numeric(df_pedidos["Quantidade"], errors="coerce")
 
@@ -116,12 +115,12 @@ elif opcao == "Upload Excel/CSV":
 # ==========================
 for df in [df_navios, df_pedidos]:
     df["Navio"] = df["Navio"].astype(str).str.strip().str.upper()
-    df["Viagem"] = df["Viagem"].astype(str).str.strip().str.upper()
+    df["ViagemTcp"] = df["ViagemTcp"].astype(str).str.strip().str.upper()
 
 # ==========================
-# RELACIONAR PEDIDOS COM NAVIOS (Navio + Viagem)
+# RELACIONAR PEDIDOS COM NAVIOS (Navio + ViagemTcp)
 # ==========================
-df_result = df_pedidos.merge(df_navios, on=["Navio", "Viagem"], how="left")
+df_result = df_pedidos.merge(df_navios, on=["Navio", "ViagemTcp"], how="left")
 
 # ==========================
 # RESULTADOS
@@ -133,5 +132,5 @@ st.subheader("📊 Programação de Navios (API TCP)")
 st.dataframe(df_navios, use_container_width=True)
 
 # Debug opcional
-st.write("🔍 Valores únicos de Navio+Viagem no TCP:", df_navios[["Navio","Viagem"]].drop_duplicates())
-st.write("🔍 Valores únicos de Navio+Viagem nos pedidos:", df_pedidos[["Navio","Viagem"]].drop_duplicates())
+st.write("🔍 Valores únicos de Navio+ViagemTcp no TCP:", df_navios[["Navio","ViagemTcp"]].drop_duplicates())
+st.write("🔍 Valores únicos de Navio+ViagemTcp nos pedidos:", df_pedidos[["Navio","ViagemTcp"]].drop_duplicates())
