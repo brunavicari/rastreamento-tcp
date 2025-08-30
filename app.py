@@ -11,7 +11,7 @@ PAGE_SIZE = 100
 MAX_PAGINAS = 20
 
 st.set_page_config(page_title="Rastreamento TCP", layout="wide")
-st.title("🚢 Rastreamento de Embarques TCP")
+st.title("🚢 FOLLOW CROPCHEM")
 
 # ==========================
 # FUNÇÃO PARA PEGAR NAVIOS
