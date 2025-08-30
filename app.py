@@ -86,8 +86,8 @@ if opcao == "Exemplo interno":
         "Pedido": ["CROP193/25_PR", "CROP140/25A_PR", "CROP098/25_RS"],
         "Produto": ["KRATON 100 EC", "KRATON 100 EC", "CHARRUA 430 SC"],
         "Quantidade": [115.500, 46.200, 86.400],
-        "Navio": ["SEASPAN ZAMBEZI", "SEASPAN ZAMBEZI", "EVER GREEN"],
-        "ViagemTcp": ["2528W", "2528W", "102W"]  # ⚡ número da viagem correto
+        "Navio": ["SEASPAN ZAMBEZI", "SEASPAN ZAMBEZI", "CMA CGM MERCANTOUR"],
+        "ViagemTcp": ["2528W", "2528W", "1GB0AN1MA"]  # ⚡ valor exato do JSON
     })
 
 elif opcao == "Colar na caixa de texto":
@@ -136,6 +136,6 @@ st.dataframe(df_navios, use_container_width=True)
 
 # Debug opcional
 st.write("🔍 Navios+ViagemTcp no TCP:")
-st.write(df_navios[["Navio","ViagemTcp","PrevisaoAtracacao"]].drop_duplicates())
+st.dataframe(df_navios[["Navio","ViagemTcp","PrevisaoAtracacao"]].drop_duplicates())
 st.write("🔍 Pedidos inseridos:")
-st.write(df_pedidos[["Navio","ViagemTcp"]].drop_duplicates())
+st.dataframe(df_pedidos[["Navio","ViagemTcp"]].drop_duplicates())
